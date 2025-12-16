@@ -1,9 +1,9 @@
 #include "st7789.h"
-#include "driver/spi_master.h"
-#include "driver/gpio.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
+#define TAG "ST7789"
 
 static spi_device_handle_t st7789_spi;
 
@@ -31,6 +31,13 @@ esp_err_t st7789_init(void)
         return ret;
     }
 
+    spi_host_device_t spi_host;
+    switch(CONFIG_ST7789_SPI_HOST) {
+        case 0: spi_host = SPI1_HOST; break;
+        case 1: spi_host = SPI2_HOST; break;
+        default: spi_host = SPI2_HOST; break;
+    }
+
     spi_bus_config_t buscfg = {
         .mosi_io_num = ST7789_PIN_NUM_MOSI,
         .miso_io_num = -1,
@@ -46,9 +53,18 @@ esp_err_t st7789_init(void)
         .queue_size = 7,
         .pre_cb = NULL
     };
-    ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
-    ret = spi_bus_add_device(SPI2_HOST, &devcfg, &st7789_spi);
-
+    ret = spi_bus_initialize(spi_host, &buscfg, SPI_DMA_CH_AUTO);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "spi_bus_initialize failed: %d", ret);
+        return ret;
+    }
+    ret = spi_bus_add_device(spi_host, &devcfg, &st7789_spi);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "spi_bus_add_device failed: %d", ret);
+        return ret;
+    }
     ret = st7789_reset();
 
     // ST7789初始化命令序列（参考Hardware/st7789.c）
@@ -163,12 +179,12 @@ esp_err_t st7789_set_rotation(DisplayRotation rotation)
     // TODO: 发送 MADCTL 命令
     esp_err_t ret = st7789_write_cmd(0x36);
     if (ret != ESP_OK) return ret;
-    uint8_t madctl = 0x00;
+    uint8_t madctl = 0x00; // RGB color order, matching STM32
     switch(rotation) {
-        case DISPLAY_ROTATION_0: madctl = 0x00; break;
-        case DISPLAY_ROTATION_90: madctl = 0x60; break;
-        case DISPLAY_ROTATION_180: madctl = 0xC0; break;
-        case DISPLAY_ROTATION_270: madctl = 0xA0; break;
+        case DISPLAY_ROTATION_0: madctl |= 0x00; break;
+        case DISPLAY_ROTATION_90: madctl |= 0x20; break; // Match STM32
+        case DISPLAY_ROTATION_180: madctl |= 0xC0; break;
+        case DISPLAY_ROTATION_270: madctl |= 0x60; break; // Match STM32
     }
     return st7789_write_data(&madctl, 1);
 }
@@ -197,6 +213,8 @@ esp_err_t st7789_draw_pixel(uint16_t x, uint16_t y, uint16_t color)
     // TODO: 设置窗口并写入像素数据
     esp_err_t ret = st7789_set_window(x, x, y, y);
     if (ret != ESP_OK) return ret;
+    ret = st7789_write_cmd(0x2C); // Memory Write
+    if (ret != ESP_OK) return ret;
     uint8_t data[2] = {color >> 8, color & 0xFF};
     return st7789_write_data(data, 2);
 }
@@ -206,6 +224,8 @@ esp_err_t st7789_fill_screen(uint16_t color)
     ESP_LOGI(ST7789_INIT_TAG, "Fill screen with color: 0x%04X", color);
     // TODO: 填充整个屏幕
     esp_err_t ret = st7789_set_window(0, TFT_WIDTH-1, 0, TFT_HEIGHT-1);
+    if (ret != ESP_OK) return ret;
+    ret = st7789_write_cmd(0x2C); // Memory Write
     if (ret != ESP_OK) return ret;
     // 批量填充像素数据
     size_t size = TFT_WIDTH * TFT_HEIGHT;

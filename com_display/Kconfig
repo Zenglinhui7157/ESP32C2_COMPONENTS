@@ -1,0 +1,88 @@
+menu "Display Configuration"
+
+choice DISPLAY_TYPE
+    prompt "Select display type"
+    default DISPLAY_TYPE_ST7789
+
+    config DISPLAY_TYPE_ST7789
+        bool "ST7789 SPI Display"
+        help
+            Select ST7789 display with SPI interface.
+
+    # Add other display types here if needed
+    # config DISPLAY_TYPE_XXX
+    #     bool "XXX Display"
+endchoice
+
+if DISPLAY_TYPE_ST7789
+
+    menu "ST7789 Configuration"
+
+        config ST7789_SPI_HOST
+            int "SPI Host (0=SPI1_HOST, 1=SPI2_HOST)"
+            range 0 1
+            default 1
+            help
+                SPI host to use for ST7789.
+
+        config ST7789_PIN_MOSI
+            int "MOSI Pin"
+            default 7
+            help
+                SPI MOSI pin for ST7789.
+
+        config ST7789_PIN_MISO
+            int "MISO Pin"
+            default 0
+            help
+                SPI MISO pin for ST7789 (optional).
+
+        config ST7789_PIN_SCLK
+            int "SCLK Pin"
+            default 6
+            help
+                SPI SCLK pin for ST7789.
+
+        config ST7789_PIN_CS
+            int "CS Pin"
+            default 3
+            help
+                SPI CS pin for ST7789.
+
+        config ST7789_PIN_DC
+            int "DC Pin"
+            default 10
+            help
+                Data/Command pin for ST7789.
+
+        config ST7789_PIN_RST
+            int "RST Pin"
+            default 4
+            help
+                Reset pin for ST7789.
+
+        config ST7789_PIN_BL
+            int "Backlight Pin"
+            default 18
+            help
+                Backlight control pin for ST7789.
+
+        config ST7789_WIDTH
+            int "Display Width"
+            default 240
+            help
+                Width of the display in pixels.
+
+        config ST7789_HEIGHT
+            int "Display Height"
+            default 240
+            help
+                Height of the display in pixels.
+
+    endmenu
+
+endif
+
+# Add configurations for other display types here
+
+endmenu

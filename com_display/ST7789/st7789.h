@@ -1,16 +1,18 @@
-#ifndef _ST7789_H_
-#define _ST7789_H_
+#ifndef __ST7789_H__
+#define __ST7789_H__
 
 #include "esp_log.h"
 #include <stdint.h>
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 
+#define USE_KCONFIG_PIN_MAPPING 1
+
 #define TFT_WIDTH  240
 #define TFT_HEIGHT 240
 
 #define ST7789_SPI_MODE 0
-#define ST7789_SPI_CLOCK_HZ 40000000 // 40 MHz
+#define ST7789_SPI_CLOCK_HZ 20000000 // 20 MHz
 
 #define COLOR_RGB(r,g,b) (((r&0xF8)<<8)|((g&0xFC)<<3)|(b>>3))
 #define COLOR_RED     0xF800
@@ -21,14 +23,23 @@
 
 #define ST7789_INIT_TAG "st7789_init"
 
-// ESP32C2 默认引脚定义（可根据实际硬件修改）
+#if USE_KCONFIG_PIN_MAPPING
+// 使用Kconfig配置的引脚
+#define ST7789_PIN_NUM_MOSI  CONFIG_ST7789_PIN_MOSI
+#define ST7789_PIN_NUM_CLK   CONFIG_ST7789_PIN_SCLK
+#define ST7789_PIN_NUM_CS    CONFIG_ST7789_PIN_CS
+#define ST7789_PIN_NUM_DC    CONFIG_ST7789_PIN_DC
+#define ST7789_PIN_NUM_RST   CONFIG_ST7789_PIN_RST
+#define ST7789_PIN_NUM_BLK   CONFIG_ST7789_PIN_BL
+#else
+// 手动定义引脚
 #define ST7789_PIN_NUM_MOSI  7
 #define ST7789_PIN_NUM_CLK   6
 #define ST7789_PIN_NUM_CS    3
 #define ST7789_PIN_NUM_DC    10
 #define ST7789_PIN_NUM_RST   4
 #define ST7789_PIN_NUM_BLK   18
-
+#endif
 
 typedef enum {
 	DISPLAY_ROTATION_0,
