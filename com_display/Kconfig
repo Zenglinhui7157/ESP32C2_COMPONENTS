@@ -9,6 +9,11 @@ choice DISPLAY_TYPE
         help
             Select ST7789 display with SPI interface.
 
+    config DISPLAY_TYPE_SSD1306
+        bool "SSD1306 I2C OLED Display"
+        help
+            Select SSD1306 display with I2C interface.
+
     # Add other display types here if needed
     # config DISPLAY_TYPE_XXX
     #     bool "XXX Display"
@@ -76,6 +81,51 @@ if DISPLAY_TYPE_ST7789
         config ST7789_HEIGHT
             int "Display Height"
             default 240
+            help
+                Height of the display in pixels.
+
+    endmenu
+
+endif
+
+if DISPLAY_TYPE_SSD1306
+
+    menu "SSD1306 Configuration"
+
+        config SSD1306_I2C_PORT
+            int "I2C Port"
+            range 0 1
+            default 0
+            help
+                I2C port to use for SSD1306.
+
+        config SSD1306_PIN_SDA
+            int "SDA Pin"
+            default 5
+            help
+                I2C SDA pin for SSD1306.
+
+        config SSD1306_PIN_SCL
+            int "SCL Pin"
+            default 4
+            help
+                I2C SCL pin for SSD1306.
+
+        config SSD1306_I2C_ADDR
+            hex "I2C Address"
+            default 0x3C
+            help
+                I2C address for SSD1306 (usually 0x3C or 0x3D).
+
+        config SSD1306_WIDTH
+            int "Display Width"
+            default 128
+            help
+                Width of the display in pixels.
+
+        config SSD1306_HEIGHT
+            int "Display Height"
+            default 64
             help
                 Height of the display in pixels.
 

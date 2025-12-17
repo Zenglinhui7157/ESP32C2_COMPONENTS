@@ -37,6 +37,36 @@ esp_err_t com_display_fill_screen(uint16_t color);
 esp_err_t com_display_draw_pixel(uint16_t x, uint16_t y, uint16_t color);
 
 /**
+ * @brief Draw a character at specified coordinates
+ *
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param c Character to draw
+ * @param color Color of the character (RGB565)
+ * @return esp_err_t ESP_OK on success
+ */
+esp_err_t com_display_draw_char(uint16_t x, uint16_t y, char c, uint16_t color);
+
+/**
+ * @brief Draw a string at specified coordinates
+ *
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param str String to draw
+ * @param color Color of the string (RGB565)
+ * @return esp_err_t ESP_OK on success
+ */
+esp_err_t com_display_draw_string(uint16_t x, uint16_t y, const char *str, uint16_t color);
+
+/**
+ * @brief Set display orientation
+ *
+ * @param normal true for normal orientation (left to right, top to bottom), false for inverted
+ * @return esp_err_t ESP_OK on success
+ */
+esp_err_t com_display_set_orientation(bool normal);
+
+/**
  * @brief Set display rotation
  *
  * @param rotation Rotation angle
