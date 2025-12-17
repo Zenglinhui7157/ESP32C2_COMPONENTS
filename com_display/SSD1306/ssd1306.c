@@ -148,12 +148,23 @@ esp_err_t ssd1306_draw_char(uint16_t x, uint16_t y, char c, bool color)
         uint8_t line = char_12x6[char_index][11 - row]; // 逆向行
         for (uint8_t col = 0; col < 6; col++) { // 6 columns per row
             if (line & (1 << col)) { // 阴码，正向列
-                ssd1306_draw_pixel(x + col, y + (11 - row), color);
+                uint16_t x_pixel = x + col;
+                uint16_t y_pixel = y + (11 - row);
+                if (x_pixel < SSD1306_WIDTH && y_pixel < SSD1306_HEIGHT) {
+                    uint16_t index = x_pixel + (y_pixel / 8) * SSD1306_WIDTH;
+                    uint8_t bit = y_pixel % 8;
+                    if (color) {
+                        display_buffer[index] |= (1 << bit);
+                    } else {
+                        display_buffer[index] &= ~(1 << bit);
+                    }
+                }
             }
         }
     }
 
-    return ESP_OK;
+    // Update display once after drawing the character
+    return ssd1306_update_display();
 }
 
 esp_err_t ssd1306_set_orientation(bool normal)
