@@ -2,6 +2,7 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "../FONTS/font.h"
 
 #define TAG "ST7789"
 
@@ -266,4 +267,63 @@ esp_err_t st7789_flush_buffer(uint16_t x, uint16_t y, uint16_t w, uint16_t h, co
     ret = st7789_write_cmd(0x2C); // Memory Write
     if (ret != ESP_OK) return ret;
     return st7789_write_pixels(data, w * h * 2);
+}
+
+esp_err_t st7789_draw_char(uint16_t x, uint16_t y, char c, uint16_t color, uint16_t bgcolor)
+{
+    uint8_t char_index;
+    
+    // 获取字符索引 (ASCII码)
+    if (c >= ' ' && c <= '~') {
+        char_index = c - ' ';
+    } else {
+        // 不支持的字符用空格代替
+        char_index = 0;
+    }
+    
+    // 保存当前MADCTL设置
+    uint8_t saved_madctl;
+    esp_err_t ret = st7789_write_cmd(0x0B); // Read MADCTL
+    // 注意：读取MADCTL需要特殊的SPI操作，这里简化处理
+    // 临时设置为正常模式进行字符绘制
+    ret = st7789_write_cmd(0x36); // MADCTL
+    uint8_t temp_madctl = 0x00; // 正常模式：RGB, 行/列正常顺序
+    ret = st7789_write_data(&temp_madctl, 1);
+    if (ret != ESP_OK) return ret;
+    
+    // 设置字符绘制窗口 (6x12像素)
+    ret = st7789_set_window(x, x + 5, y, y + 11);
+    if (ret != ESP_OK) return ret;
+    
+    ret = st7789_write_cmd(0x2C); // Memory Write
+    if (ret != ESP_OK) return ret;
+    
+    // 绘制字符位图 (12行 x 6列)
+    // 阴码格式：1=背景色，0=前景色
+    // 逐行逆向：从下到上，从右到左
+    for (int8_t row = 11; row >= 0; row--) {
+        uint8_t bitmap_byte = char_12x6[char_index][row];
+        
+        // 从右到左扫描列
+        for (int8_t col = 5; col >= 0; col--) {
+            uint16_t pixel_color;
+            if (bitmap_byte & (1 << col)) {  // 阳码：1=前景色
+                pixel_color = color;
+            } else {  // 0=背景色
+                pixel_color = bgcolor;
+            }
+            
+            // 发送像素数据 (RGB565格式)
+            uint8_t pixel_data[2] = {pixel_color >> 8, pixel_color & 0xFF};
+            ret = st7789_write_data(pixel_data, 2);
+            if (ret != ESP_OK) return ret;
+        }
+    }
+    
+    // 恢复MADCTL设置
+    ret = st7789_write_cmd(0x36); // MADCTL
+    uint8_t restore_madctl = 0x60; // 恢复默认旋转
+    ret = st7789_write_data(&restore_madctl, 1);
+    
+    return ret;
 }

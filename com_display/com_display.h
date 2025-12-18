@@ -5,6 +5,14 @@
 #include "esp_err.h"
 #include <stdint.h>
 
+#if defined(CONFIG_DISPLAY_TYPE_ST7789)
+#include "ST7789/st7789.h"
+#elif defined(CONFIG_DISPLAY_TYPE_ST7735S)
+#include "ST7735S/st7735s.h"
+#elif defined(CONFIG_DISPLAY_TYPE_SSD1306)
+#include "SSD1306/ssd1306.h"
+#endif
+
 #define COM_DISPLAY_INIT_TAG "com_display_init"
 
 #ifdef __cplusplus

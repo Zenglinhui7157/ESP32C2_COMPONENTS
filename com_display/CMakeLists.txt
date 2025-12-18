@@ -10,6 +10,11 @@ if(CONFIG_DISPLAY_TYPE_ST7789)
     target_include_directories(${COMPONENT_LIB} PRIVATE ST7789)
 endif()
 
+if(CONFIG_DISPLAY_TYPE_ST7735S)
+    target_sources(${COMPONENT_LIB} PRIVATE ST7735S/st7735s.c)
+    target_include_directories(${COMPONENT_LIB} PRIVATE ST7735S)
+endif()
+
 if(CONFIG_DISPLAY_TYPE_SSD1306)
     target_sources(${COMPONENT_LIB} PRIVATE SSD1306/ssd1306.c)
     target_include_directories(${COMPONENT_LIB} PRIVATE SSD1306)

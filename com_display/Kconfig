@@ -9,6 +9,11 @@ choice DISPLAY_TYPE
         help
             Select ST7789 display with SPI interface.
 
+    config DISPLAY_TYPE_ST7735S
+        bool "ST7735S SPI Display"
+        help
+            Select ST7735S display with SPI interface.
+
     config DISPLAY_TYPE_SSD1306
         bool "SSD1306 I2C OLED Display"
         help
@@ -81,6 +86,75 @@ if DISPLAY_TYPE_ST7789
         config ST7789_HEIGHT
             int "Display Height"
             default 240
+            help
+                Height of the display in pixels.
+
+    endmenu
+
+endif
+
+if DISPLAY_TYPE_ST7735S
+
+    menu "ST7735S Configuration"
+
+        config ST7735S_SPI_HOST
+            int "SPI Host (0=SPI1_HOST, 1=SPI2_HOST)"
+            range 0 1
+            default 1
+            help
+                SPI host to use for ST7735S.
+
+        config ST7735S_PIN_MOSI
+            int "MOSI Pin"
+            default 7
+            help
+                SPI MOSI pin for ST7735S.
+
+        config ST7735S_PIN_MISO
+            int "MISO Pin"
+            default 0
+            help
+                SPI MISO pin for ST7735S (optional).
+
+        config ST7735S_PIN_SCLK
+            int "SCLK Pin"
+            default 6
+            help
+                SPI SCLK pin for ST7735S.
+
+        config ST7735S_PIN_CS
+            int "CS Pin"
+            default 3
+            help
+                SPI CS pin for ST7735S.
+
+        config ST7735S_PIN_DC
+            int "DC Pin"
+            default 10
+            help
+                Data/Command pin for ST7735S.
+
+        config ST7735S_PIN_RST
+            int "RST Pin"
+            default 4
+            help
+                Reset pin for ST7735S.
+
+        config ST7735S_PIN_BL
+            int "Backlight Pin"
+            default 18
+            help
+                Backlight control pin for ST7735S.
+
+        config ST7735S_WIDTH
+            int "Display Width"
+            default 128
+            help
+                Width of the display in pixels.
+
+        config ST7735S_HEIGHT
+            int "Display Height"
+            default 160
             help
                 Height of the display in pixels.
 

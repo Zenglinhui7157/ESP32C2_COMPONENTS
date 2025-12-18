@@ -89,5 +89,6 @@ esp_err_t st7789_draw_pixel(uint16_t x, uint16_t y, uint16_t color);
 esp_err_t st7789_fill_screen(uint16_t color);
 esp_err_t st7789_write_pixels(const uint8_t *data, size_t len);
 esp_err_t st7789_flush_buffer(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint8_t *data);
+esp_err_t st7789_draw_char(uint16_t x, uint16_t y, char c, uint16_t color, uint16_t bgcolor);
 
 #endif
